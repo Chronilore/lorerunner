@@ -7,3 +7,14 @@ edition = "2021"
 
 [dependencies]
 anyhow = { version = "1.0.72" }
+# Logging
+env_logger = "0.10.0"
+# Logging
+log = { version = "0.4.19" }
+# Time
+time = { version = "0.3.23", features = [
+	"serde",
+	"formatting",
+	"std",
+	"parsing",
+] }
