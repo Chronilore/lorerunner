@@ -2,17 +2,19 @@ use anyhow::Result;
 use jwt_simple::prelude::{Claims, Duration, JWTClaims, RS256KeyPair, RSAKeyPairLike};
 use log::{error, info};
 
-use crate::get_file_content_as_string;
-
-const MAX_GITHUB_EXPIRATION_MINUTES: u64 = 10;
-const GITHUB_API_URL: &str = "https://api.github.com";
-const GITHUB_API_VERSION: &str = "2022-11-28";
-const GITHUB_API_ACCEPT_HEADER_VALUE: &str = "application/vnd.github+json";
-const GET_GITHUB_APP_API_ROUTE: &str = "/app";
-
-const HTTP_HEADER_ACCEPT: &str = "Accept";
-const HTTP_HEADER_GITHUB_API_VERSION: &str = "X-GitHub-Api-Version";
-const HTTP_HEADER_AUTHORIZATION: &str = "Authorization";
+use crate::{
+    configuration::constants::{
+        github::{
+            GET_GITHUB_APP_API_ROUTE, GITHUB_API_ACCEPT_HEADER_VALUE, GITHUB_API_URL,
+            GITHUB_API_VERSION, MAX_GITHUB_JWT_EXPIRATION_MINUTES,
+        },
+        http::{
+            github::HTTP_HEADER_GITHUB_API_VERSION, HTTP_HEADER_ACCEPT, HTTP_HEADER_AUTHORIZATION,
+        },
+    },
+    file_system::get_file_content_as_string,
+    http::format_authorization_bearer_token,
+};
 
 pub struct GitHubApp {
     json_web_token: Option<String>,
@@ -41,7 +43,10 @@ impl GitHubApp {
             .get(GITHUB_API_URL)
             .set(HTTP_HEADER_ACCEPT, GITHUB_API_ACCEPT_HEADER_VALUE)
             .set(HTTP_HEADER_GITHUB_API_VERSION, GITHUB_API_VERSION)
-            .set(HTTP_HEADER_AUTHORIZATION, &format!("Bearer {}", token))
+            .set(
+                HTTP_HEADER_AUTHORIZATION,
+                &format_authorization_bearer_token(token),
+            )
             .call()
         {
             Ok(reply) => {
@@ -80,7 +85,10 @@ impl GitHubApp {
             .get(format!("{}{}", GITHUB_API_URL, GET_GITHUB_APP_API_ROUTE).as_str())
             .set(HTTP_HEADER_ACCEPT, GITHUB_API_ACCEPT_HEADER_VALUE)
             .set(HTTP_HEADER_GITHUB_API_VERSION, GITHUB_API_VERSION)
-            .set(HTTP_HEADER_AUTHORIZATION, &format!("Bearer {}", token))
+            .set(
+                HTTP_HEADER_AUTHORIZATION,
+                &format_authorization_bearer_token(token),
+            )
             .call()
         {
             Ok(reply) => {
@@ -112,7 +120,7 @@ pub fn create_json_web_token(key_path: &str, issuer: &str) -> Result<String> {
     info!("\n{}\n", private_key_string);
     let key_pair: RS256KeyPair = RS256KeyPair::from_pem(&private_key_string)?;
     let claims: JWTClaims<jwt_simple::prelude::NoCustomClaims> =
-        Claims::create(Duration::from_mins(MAX_GITHUB_EXPIRATION_MINUTES)).with_issuer(issuer);
+        Claims::create(Duration::from_mins(MAX_GITHUB_JWT_EXPIRATION_MINUTES)).with_issuer(issuer);
     let token: String = key_pair.sign(claims)?;
 
     Ok(token)
