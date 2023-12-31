@@ -80,7 +80,7 @@ impl GitHubApp {
         let Some(token) = &self.json_web_token else {
             panic!("Expected a auth token but there wasn't one!");
         };
-        info!("Getting app details");
+        info!("[GET][{}{}]", GITHUB_API_URL, GET_GITHUB_APP_API_ROUTE);
         match http_agent
             .get(format!("{}{}", GITHUB_API_URL, GET_GITHUB_APP_API_ROUTE).as_str())
             .set(HTTP_HEADER_ACCEPT, GITHUB_API_ACCEPT_HEADER_VALUE)
@@ -93,7 +93,9 @@ impl GitHubApp {
         {
             Ok(reply) => {
                 info!(
-                    "\nStatus Code: {} Status Text: {}",
+                    "\n[GET][{}{}][Status Code: {}][Status Text: {}]",
+                    GITHUB_API_URL,
+                    GET_GITHUB_APP_API_ROUTE,
                     reply.status(),
                     reply.status_text()
                 );
@@ -117,7 +119,6 @@ impl GitHubApp {
 
 pub fn create_json_web_token(key_path: &str, issuer: &str) -> Result<String> {
     let private_key_string: String = get_file_content_as_string(String::from(key_path))?;
-    info!("\n{}\n", private_key_string);
     let key_pair: RS256KeyPair = RS256KeyPair::from_pem(&private_key_string)?;
     let claims: JWTClaims<jwt_simple::prelude::NoCustomClaims> =
         Claims::create(Duration::from_mins(MAX_GITHUB_JWT_EXPIRATION_MINUTES)).with_issuer(issuer);
