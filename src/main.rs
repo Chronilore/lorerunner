@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
 use env_logger::{Builder, Target};
 use log::{info, LevelFilter};
+use serde::{Deserialize, Serialize};
 
 use std::fs::read_dir;
 use std::io::Write;
@@ -16,6 +17,7 @@ use crate::github::github_app::GitHubApp;
 
 pub mod github;
 
+const CONFIGURATION_FILE_PATH: &str = "./private/configuration.ron";
 const FRONTEND_PATH: &str = "";
 const FRONTEND_PKG_PATH: &str = "";
 const GITHUB_PAGES_REPOSITORY_PATH: &str = "";
@@ -32,12 +34,31 @@ fn main() -> Result<()> {
     configure_logging()?;
     info!("lorerunner started");
 
-    let github_app: GitHubApp = GitHubApp::new()?;
+    let configuration: Configuration = get_application_configuration()?;
+
+    let github_app: GitHubApp = GitHubApp::new(
+        &configuration.github_app_private_key_path,
+        configuration.github_app_id,
+    )?;
 
     github_app.ping_github()?;
     github_app.get_app_details()?;
 
     Ok(())
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Configuration {
+    pub github_app_private_key_path: String,
+    pub github_app_id: u32,
+    pub github_app_installation_id: u32,
+}
+
+pub fn get_application_configuration() -> Result<Configuration> {
+    let configuration_file_content: String =
+        get_file_content_as_string(CONFIGURATION_FILE_PATH.to_string())?;
+    let configuration: Configuration = ron::from_str(&configuration_file_content)?;
+    Ok(configuration)
 }
 
 pub fn deploy_loremaster_static_site() -> Result<()> {

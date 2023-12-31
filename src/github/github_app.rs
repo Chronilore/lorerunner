@@ -1,15 +1,10 @@
-use std::borrow::Borrow;
-
 use anyhow::Result;
 use jwt_simple::prelude::{Claims, Duration, JWTClaims, RS256KeyPair, RSAKeyPairLike};
 use log::{error, info};
 
 use crate::get_file_content_as_string;
 
-const PRIVATE_KEY_PATH: &str = "";
-const APP_ID: u32 = 401200;
 const MAX_GITHUB_EXPIRATION_MINUTES: u64 = 10;
-const TEST_REPOSITORY_INSTALLATION_ID: u32 = 1;
 const GITHUB_API_URL: &str = "https://api.github.com";
 const GITHUB_API_VERSION: &str = "2022-11-28";
 const GITHUB_API_ACCEPT_HEADER_VALUE: &str = "application/vnd.github+json";
@@ -24,8 +19,9 @@ pub struct GitHubApp {
 }
 
 impl GitHubApp {
-    pub fn new() -> Result<Self> {
-        let json_web_token: String = create_json_web_token(PRIVATE_KEY_PATH, &APP_ID.to_string())?;
+    pub fn new(private_key_path: &str, github_app_id: u32) -> Result<Self> {
+        let json_web_token: String =
+            create_json_web_token(private_key_path, &github_app_id.to_string())?;
         Ok(GitHubApp {
             json_web_token: Some(json_web_token),
         })
