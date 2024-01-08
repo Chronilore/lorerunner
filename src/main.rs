@@ -1,3 +1,4 @@
+use amazon_web_services::configuration::AmazonWebServicesConfiguration;
 use anyhow::Result;
 
 use log::info;
@@ -12,7 +13,8 @@ pub mod github;
 pub mod http;
 pub mod workshop;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     configuration::configure_logging()?;
     info!("lorerunner started");
 
@@ -25,6 +27,9 @@ fn main() -> Result<()> {
 
     github_app.ping_github()?;
     github_app.get_app_details()?;
+
+    let aws_configuration: AmazonWebServicesConfiguration =
+        AmazonWebServicesConfiguration::new().await;
 
     Ok(())
 }
