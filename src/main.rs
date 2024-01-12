@@ -1,8 +1,10 @@
-use amazon_web_services::configuration::AmazonWebServicesConfiguration;
 use anyhow::Result;
 
+use aws_config::SdkConfig;
+use aws_sdk_ec2::Client;
 use log::info;
 
+use crate::amazon_web_services::ec2;
 use crate::configuration::{get_application_configuration, Configuration};
 use crate::github::github_app::GitHubApp;
 
@@ -28,8 +30,11 @@ async fn main() -> Result<()> {
     github_app.ping_github()?;
     github_app.get_app_details()?;
 
-    let aws_configuration: AmazonWebServicesConfiguration =
-        AmazonWebServicesConfiguration::new().await;
+    println!();
+    let aws_configuration: SdkConfig = aws_config::load_from_env().await;
+
+    let ec2_client = Client::new(&aws_configuration);
+    ec2::get_ec2_launch_templates(ec2_client).await?;
 
     Ok(())
 }

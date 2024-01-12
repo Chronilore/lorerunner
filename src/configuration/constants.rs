@@ -31,3 +31,9 @@ pub mod github {
     pub const GET_GITHUB_APP_API_ROUTE: &str = "/app";
     pub const GITHUB_API_ACCEPT_HEADER_VALUE: &str = "application/vnd.github+json";
 }
+
+pub mod environment_variables {
+    pub const AWS_ACCESS_KEY_ID: &str = "AWS_ACCESS_KEY_ID";
+    pub const AWS_SECRET_ACCESS_KEY: &str = "AWS_SECRET_ACCESS_KEY";
+    pub const AWS_REGION: &str = "AWS_REGION";
+}
