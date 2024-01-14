@@ -13,6 +13,7 @@ pub mod constants;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Configuration {
+    pub log_level: LevelFilter,
     pub github_app_private_key_path: String,
     pub github_app_id: u32,
     pub github_app_installation_id: u32,
@@ -25,21 +26,19 @@ pub fn get_application_configuration() -> Result<Configuration> {
     Ok(configuration)
 }
 
-pub fn configure_logging() -> Result<()> {
-    const DEBUG: &str = "DEBUG";
+pub fn configure_logging(configuration: &Configuration) -> Result<()> {
     Builder::new()
         .target(Target::Stdout)
         .format(move |buf, record| -> Result<(), std::io::Error> {
             writeln!(
                 buf,
-                "[LORERUNNER_{}]: [{}] [{}] - {}",
-                DEBUG,
+                "[LORERUNNER]: [{}] [{}] - {}",
                 OffsetDateTime::now_utc().format(&Rfc3339).unwrap(),
                 record.level(),
                 record.args()
             )
         })
-        .filter(None, LevelFilter::Info)
+        .filter(None, configuration.log_level)
         .init();
 
     Ok(())
