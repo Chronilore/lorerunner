@@ -37,3 +37,18 @@ pub mod environment_variables {
     pub const AWS_SECRET_ACCESS_KEY: &str = "AWS_SECRET_ACCESS_KEY";
     pub const AWS_REGION: &str = "AWS_REGION";
 }
+
+pub mod amazon_web_services {
+    pub const RUST_ARM_NANO_TEMPLATE_NAME: &str = "rust-arm";
+    pub const HTTPS_ALLOWED_SECURITY_GROUP_NAME: &str = "HTTPS Allowed";
+    pub const PUBLIC_WEB_SERVER_SECURITY_GROUP_NAME: &str = "Public Web Server";
+}
+
+pub mod networking {
+    pub const TCP_PROTOCOL: &str = "tcp";
+    pub const HTTP_PORT: i32 = 80_i32;
+    pub const HTTPS_PORT: i32 = 443_i32;
+    pub const POSTGRES_PORT: i32 = 5432_i32;
+    pub const ANYWHERE_IPV4: &str = "0.0.0.0/0";
+    pub const ANYWHERE_IPV6: &str = "::/0";
+}
