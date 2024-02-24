@@ -61,15 +61,37 @@ where
     Ok(result)
 }
 
+pub enum CreateFileResult {
+    FileCreated,
+    FileExists,
+}
+
+pub fn create_file_if_missing(file_path: String) -> Result<CreateFileResult> {
+    let target_path: &Path = Path::new(&file_path);
+    match target_path.exists() {
+        true => Ok(CreateFileResult::FileExists),
+        false => {
+            std::fs::File::create(target_path)?;
+            Ok(CreateFileResult::FileCreated)
+        }
+    }
+}
+
 pub fn get_file_content_as_string(file_path: String) -> Result<String> {
     let target_path: &Path = Path::new(&file_path);
 
     if !target_path.exists() {
-        panic!("Failed to get file contents -- file not found!");
+        panic!(
+            "Failed to get file contents -- file not found: {}",
+            file_path
+        );
     }
 
     if !target_path.is_file() || target_path.is_dir() || target_path.is_symlink() {
-        panic!("Failed to get file contents -- specified path is not a file!");
+        panic!(
+            "Failed to get file contents -- specified path is not a file: {}",
+            file_path
+        );
     }
 
     Ok(std::fs::read_to_string(target_path)?)
